@@ -17,7 +17,8 @@ def install_requirements():
     print("✅ Requirements installed!")
 
 def main():
-    install_requirements()
+    # install_requirements() # Removed to prevent errors on production hosts like Render
+
     # Add backend to path
     backend_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backend')
     sys.path.insert(0, backend_path)
