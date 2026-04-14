@@ -1,0 +1,15 @@
+[Unit]
+Description=WhatsApp Clone Service
+After=network.target
+
+[Service]
+User=vasanth
+Group=vasanth
+WorkingDirectory=/home/vasanth/Desktop/whatsapp-clone
+Environment="PATH=/home/vasanth/Desktop/whatsapp-clone/venv/bin"
+ExecStart=/home/vasanth/Desktop/whatsapp-clone/venv/bin/python3 /home/vasanth/Desktop/whatsapp-clone/run.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
