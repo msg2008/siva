@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>WhatsApp Clone</title>
+<link rel="stylesheet" href="/static/css/style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="authScreen" class="auth-screen">
+  <div class="auth-container">
+    <div class="auth-logo">
+      <i class="fab fa-whatsapp"></i>
+    </div>
+    <h1>WhatsApp Clone</h1>
+    <p class="auth-subtitle">Simple. Secure. Reliable messaging.</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Sign In</button>
+      <button class="auth-tab" onclick="switchTab('register')">Create Account</button>
+    </div>
+
+    <!-- Login -->
+    <div id="loginForm" class="auth-form">
+      <div class="input-group">
+        <i class="fas fa-phone"></i>
+        <input type="tel" id="loginPhone" placeholder="Phone Number (e.g. 9876543210)" />
+      </div>
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input type="password" id="loginPass" placeholder="Password" />
+        <i class="fas fa-eye toggle-pass" onclick="togglePass('loginPass',this)"></i>
+      </div>
+      <button class="auth-btn" onclick="login()">Sign In</button>
+    </div>
+
+    <!-- Register -->
+    <div id="registerForm" class="auth-form hidden">
+      <div class="input-group">
+        <i class="fas fa-user"></i>
+        <input type="text" id="regName" placeholder="Your Name" />
+      </div>
+      <div class="input-group">
+        <i class="fas fa-phone"></i>
+        <input type="tel" id="regPhone" placeholder="Phone Number" />
+      </div>
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input type="password" id="regPass" placeholder="Password (min 6 chars)" />
+        <i class="fas fa-eye toggle-pass" onclick="togglePass('regPass',this)"></i>
+      </div>
+      <button class="auth-btn" onclick="register()">Create Account</button>
+    </div>
+    <div id="authError" class="auth-error hidden"></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="appScreen" class="app-screen hidden">
+
+  <!-- LEFT SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <!-- Sidebar Header -->
+    <div class="sidebar-header">
+      <div class="my-avatar" id="myAvatar" onclick="openProfileModal()"></div>
+      <div class="header-actions">
+        <button class="icon-btn" title="Status" onclick="showSection('status')"><i class="fas fa-circle-notch"></i></button>
+        <button class="icon-btn" title="New Chat" onclick="showNewChatModal()"><i class="fas fa-comment-alt"></i></button>
+        <button class="icon-btn" title="Menu" onclick="toggleMenu()"><i class="fas fa-ellipsis-v"></i></button>
+        <div class="dropdown-menu hidden" id="headerMenu">
+          <div class="dropdown-item" onclick="showSection('contacts')"><i class="fas fa-address-book"></i> Contacts</div>
+          <div class="dropdown-item" onclick="showNewGroupModal()"><i class="fas fa-users"></i> New Group</div>
+          <div class="dropdown-item" onclick="openProfileModal()"><i class="fas fa-user"></i> Profile</div>
+          <div class="dropdown-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-bar">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Search or start new chat" id="searchInput" oninput="onSearch()" />
+    </div>
+
+    <!-- Nav Tabs -->
+    <div class="sidebar-tabs">
+      <button class="sidebar-tab active" onclick="showSection('chats')" id="tabChats">Chats</button>
+      <button class="sidebar-tab" onclick="showSection('status')" id="tabStatus">Status</button>
+      <button class="sidebar-tab" onclick="showSection('contacts')" id="tabContacts">Contacts</button>
+    </div>
+
+    <!-- CHATS LIST -->
+    <div class="section-content" id="sectionChats">
+      <div class="chat-list" id="chatList">
+        <div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Loading chats...</div>
+      </div>
+    </div>
+
+    <!-- STATUS LIST -->
+    <div class="section-content hidden" id="sectionStatus">
+      <div class="status-my">
+        <div class="status-item" onclick="showAddStatus()">
+          <div class="status-avatar add-status">
+            <i class="fas fa-plus"></i>
+          </div>
+          <div class="status-info">
+            <div class="status-name">My Status</div>
+            <div class="status-preview">Add to my status</div>
+          </div>
+        </div>
+      </div>
+      <div class="status-divider">Recent updates</div>
+      <div id="statusList"></div>
+    </div>
+
+    <!-- CONTACTS LIST -->
+    <div class="section-content hidden" id="sectionContacts">
+      <div class="add-contact-btn" onclick="showAddContactModal()">
+        <i class="fas fa-user-plus"></i> Add Contact
+      </div>
+      <div id="contactsList"></div>
+    </div>
+  </div>
+
+  <!-- CHAT AREA -->
+  <div class="chat-area" id="chatArea">
+    <!-- Welcome -->
+    <div class="welcome-screen" id="welcomeScreen">
+      <div class="welcome-content">
+        <i class="fab fa-whatsapp welcome-icon"></i>
+        <h2>WhatsApp Clone</h2>
+        <p>Send and receive messages without keeping your phone online.</p>
+        <p class="welcome-hint">Click on a chat to start messaging</p>
+      </div>
+    </div>
+
+    <!-- Active Chat -->
+    <div class="active-chat hidden" id="activeChat">
+      <!-- Chat Header -->
+      <div class="chat-header">
+        <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+        <div class="chat-avatar" id="chatAvatar" onclick="openChatInfo()"></div>
+        <div class="chat-info" onclick="openChatInfo()">
+          <div class="chat-name" id="chatName"></div>
+          <div class="chat-status" id="chatStatus"></div>
+        </div>
+        <div class="chat-actions">
+          <button class="icon-btn" title="Search" onclick="toggleMsgSearch()"><i class="fas fa-search"></i></button>
+          <button class="icon-btn" title="More" onclick="toggleChatMenu()"><i class="fas fa-ellipsis-v"></i></button>
+          <div class="dropdown-menu hidden" id="chatMenu">
+            <div class="dropdown-item" onclick="clearChat()"><i class="fas fa-broom"></i> Clear Chat</div>
+            <div class="dropdown-item" onclick="openChatInfo()"><i class="fas fa-info-circle"></i> Chat Info</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message Search Bar -->
+      <div class="msg-search-bar hidden" id="msgSearchBar">
+        <input type="text" placeholder="Search messages..." id="msgSearchInput" oninput="searchMessages()"/>
+        <button onclick="closeMsgSearch()"><i class="fas fa-times"></i></button>
+      </div>
+
+      <!-- Messages -->
+      <div class="messages-container" id="messagesContainer" onscroll="onMsgScroll()">
+        <div id="messagesList"></div>
+        <div class="typing-indicator hidden" id="typingIndicator">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <!-- Reply Preview -->
+      <div class="reply-preview hidden" id="replyPreview">
+        <div class="reply-info">
+          <div class="reply-sender" id="replySender"></div>
+          <div class="reply-text" id="replyText"></div>
+        </div>
+        <button onclick="cancelReply()"><i class="fas fa-times"></i></button>
+      </div>
+
+      <!-- Input Area -->
+      <div class="input-area">
+        <div class="input-pill">
+          <button class="icon-btn attach-btn" onclick="toggleAttachMenu()">
+            <i class="fas fa-plus"></i>
+          </button>
+          <div class="attach-menu hidden" id="attachMenu">
+            <button onclick="triggerUpload('image/*','image')"><i class="fas fa-image"></i><span>Photo</span></button>
+            <button onclick="triggerUpload('video/*','video')"><i class="fas fa-video"></i><span>Video</span></button>
+            <button onclick="triggerUpload('audio/*','audio')"><i class="fas fa-music"></i><span>Audio</span></button>
+            <button onclick="triggerUpload('*','file')"><i class="fas fa-file"></i><span>File</span></button>
+          </div>
+          <button class="icon-btn emoji-btn" onclick="toggleEmojiPicker()"><i class="far fa-smile"></i></button>
+          <textarea id="msgInput" placeholder="Message" rows="1"
+            oninput="autoResize(this);sendTyping()"
+            onkeydown="onMsgKeydown(event)"></textarea>
+        </div>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+      <!-- Emoji Picker -->
+      <div class="emoji-picker hidden" id="emojiPicker"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODALS ─────────────────────────────────────────────────────── -->
+
+<!-- Profile Modal -->
+<div class="modal-overlay hidden" id="profileModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Profile</h3>
+      <button onclick="closeModal('profileModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar" id="profileAvatar"></div>
+        <button class="change-avatar-btn" onclick="triggerAvatarUpload()"><i class="fas fa-camera"></i></button>
+      </div>
+      <div class="profile-field">
+        <label>Name</label>
+        <div class="editable-field">
+          <span id="profileName"></span>
+          <button onclick="editField('name')"><i class="fas fa-pencil-alt"></i></button>
+        </div>
+      </div>
+      <div class="profile-field">
+        <label>Phone</label>
+        <div class="editable-field"><span id="profilePhone"></span></div>
+      </div>
+      <div class="profile-field">
+        <label>About</label>
+        <div class="editable-field">
+          <span id="profileAbout"></span>
+          <button onclick="editField('about')"><i class="fas fa-pencil-alt"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- New Chat Modal -->
+<div class="modal-overlay hidden" id="newChatModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>New Chat</h3>
+      <button onclick="closeModal('newChatModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="input-group">
+        <i class="fas fa-search"></i>
+        <input type="text" id="newChatSearch" placeholder="Search by name or phone" oninput="searchNewChat()"/>
+      </div>
+      <div id="newChatResults" class="search-results"></div>
+    </div>
+  </div>
+</div>
+
+<!-- New Group Modal -->
+<div class="modal-overlay hidden" id="newGroupModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>New Group</h3>
+      <button onclick="closeModal('newGroupModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="input-group">
+        <i class="fas fa-users"></i>
+        <input type="text" id="groupName" placeholder="Group name" />
+      </div>
+      <div class="input-group">
+        <i class="fas fa-info-circle"></i>
+        <input type="text" id="groupDesc" placeholder="Group description (optional)" />
+      </div>
+      <div class="input-group">
+        <i class="fas fa-search"></i>
+        <input type="text" id="groupMemberSearch" placeholder="Search members" oninput="searchGroupMembers()"/>
+      </div>
+      <div id="selectedMembers" class="selected-members"></div>
+      <div id="groupMemberResults" class="search-results"></div>
+      <button class="modal-submit-btn" onclick="createGroup()">Create Group</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Contact Modal -->
+<div class="modal-overlay hidden" id="addContactModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Add Contact</h3>
+      <button onclick="closeModal('addContactModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="input-group">
+        <i class="fas fa-phone"></i>
+        <input type="tel" id="contactPhone" placeholder="Phone Number" />
+      </div>
+      <div class="input-group">
+        <i class="fas fa-user"></i>
+        <input type="text" id="contactNickname" placeholder="Nickname (optional)" />
+      </div>
+      <button class="modal-submit-btn" onclick="addContact()">Add Contact</button>
+      <div id="addContactMsg" class="hidden"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Status Modal -->
+<div class="modal-overlay hidden" id="addStatusModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Add Status</h3>
+      <button onclick="closeModal('addStatusModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="status-type-tabs">
+        <button class="status-type-tab active" onclick="switchStatusType('text',this)">Text</button>
+        <button class="status-type-tab" onclick="switchStatusType('image',this)">Image</button>
+      </div>
+      <div id="textStatusForm">
+        <div class="status-preview-box" id="statusPreviewBox" style="background:#128C7E">
+          <textarea id="statusText" placeholder="Type a status..." maxlength="700"></textarea>
+        </div>
+        <div class="status-colors">
+          <div class="color-dot" style="background:#128C7E" onclick="setStatusBg('#128C7E',this)"></div>
+          <div class="color-dot" style="background:#075E54" onclick="setStatusBg('#075E54',this)"></div>
+          <div class="color-dot" style="background:#E44D26" onclick="setStatusBg('#E44D26',this)"></div>
+          <div class="color-dot" style="background:#6B21A8" onclick="setStatusBg('#6B21A8',this)"></div>
+          <div class="color-dot" style="background:#1E40AF" onclick="setStatusBg('#1E40AF',this)"></div>
+          <div class="color-dot" style="background:#065F46" onclick="setStatusBg('#065F46',this)"></div>
+          <div class="color-dot active" style="background:#B45309" onclick="setStatusBg('#B45309',this)"></div>
+        </div>
+      </div>
+      <div id="imageStatusForm" class="hidden">
+        <input type="file" id="statusImageInput" accept="image/*" onchange="previewStatusImage()"/>
+        <div id="statusImagePreview"></div>
+      </div>
+      <button class="modal-submit-btn" onclick="postStatus()">Post Status</button>
+    </div>
+  </div>
+</div>
+
+<!-- Chat Info Modal -->
+<div class="modal-overlay hidden" id="chatInfoModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="chatInfoTitle">Contact Info</h3>
+      <button onclick="closeModal('chatInfoModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="chatInfoBody"></div>
+  </div>
+</div>
+
+<!-- Media Viewer -->
+<div class="media-viewer hidden" id="mediaViewer">
+  <button class="media-close" onclick="closeMediaViewer()"><i class="fas fa-times"></i></button>
+  <div class="media-content" id="mediaContent"></div>
+</div>
+
+<!-- File input -->
+<input type="file" id="fileInput" class="hidden" onchange="handleFileUpload()"/>
+<input type="file" id="avatarInput" class="hidden" accept="image/*" onchange="handleAvatarUpload()"/>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+<script src="/static/js/app.js"></script>
+</body>
+</html>
