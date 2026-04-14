@@ -35,7 +35,8 @@ def main():
     print("  Press Ctrl+C to stop")
     print("="*50 + "\n")
 
-    socketio.run(app, host='0.0.0.0', port=5000, debug=False, use_reloader=False)
+    port = int(os.environ.get("PORT", 5000))
+    socketio.run(app, host='0.0.0.0', port=port, debug=False, use_reloader=False)
 
 if __name__ == '__main__':
     main()
