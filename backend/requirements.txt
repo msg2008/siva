@@ -5,7 +5,8 @@ flask-bcrypt==1.0.1
 flask-jwt-extended==4.6.0
 python-socketio==5.10.0
 python-engineio==4.8.0
-eventlet==0.35.2
+gevent==23.9.1
+gevent-websocket==0.10.1
 werkzeug==3.0.1
 sqlalchemy>=2.0.29
 gunicorn==21.2.0

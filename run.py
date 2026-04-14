@@ -6,6 +6,11 @@ Run this file to start the server.
 import sys
 import os
 import subprocess
+try:
+    from gevent import monkey
+    monkey.patch_all()
+except ImportError:
+    pass
 
 def install_requirements():
     print("📦 Installing requirements...")
